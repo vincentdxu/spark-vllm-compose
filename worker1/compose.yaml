@@ -1,8 +1,8 @@
 services:
   # RDMA requires root, cannot specify a user
   vllm:
-    image: vllm-node-tf5
-    container_name: vllm
+    image: vllm-node
+    container_name: spark-vllm-docker
     deploy:
       resources:
         reservations:
@@ -20,10 +20,10 @@ services:
     volumes:
       # configure, or omit this, per your needs
       # use a directory like this if you have models already downloaded to a specific location
-      - ${MODELS_BASEDIR}:/models
+      #- ${MODELS_BASEDIR}:/models
 
       # use this bind mount if you use hf to download and cache models for you
-      #- $HOME/.cache/huggingface:/root/.cache/huggingface
+      - $HOME/.cache/huggingface:/root/.cache/huggingface
 
       # unused on workers
       #- ${RAY_SCRIPT_DIR}/ray-start-head.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
