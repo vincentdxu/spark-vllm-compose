@@ -56,7 +56,7 @@ services:
     restart: unless-stopped
     command: >
       ray start --block
-        --object-store-memory ${RAY_object_store_memory}
+        --object-store-memory 8589934592
         --num-cpus 2
         --disable-usage-stats
         --address=${HEAD_IP_ADDRESS}:6379
