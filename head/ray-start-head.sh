@@ -1,7 +1,11 @@
 #!/bin/sh
 
-ray start --head --port 6379 --object-store-memory $RAY_object_store_memory --num-cpus 2 \
+# ray start --head --port 6379 --object-store-memory $RAY_object_store_memory --num-cpus 2 \
+#         --node-ip-address $VLLM_HOST_IP --include-dashboard=false --disable-usage-stats
+
+ray start --head --port 6379 --num-cpus 4 \
          --node-ip-address $VLLM_HOST_IP --include-dashboard=false --disable-usage-stats
+
 
 first=0
 while true; do

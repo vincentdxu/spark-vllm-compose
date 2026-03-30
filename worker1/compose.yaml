@@ -38,9 +38,15 @@ services:
       - RAY_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
       - RAY_OVERRIDE_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
       - RAY_memory_monitor_refresh_ms=0
+<<<<<<< HEAD
       # - RAY_num_prestart_python_workers=0
       # - RAY_object_store_memory=8589934592
       # - RAY_object_store_memory=1073741824
+=======
+      - RAY_num_prestart_python_workers=0
+      # - RAY_object_store_memory=8589934592
+      - RAY_object_store_memory=1073741824
+>>>>>>> refs/remotes/origin/master
       - VLLM_HOST_IP=${NODE_IP_ADDRESS}
       - VLLM_MARLIN_USE_ATOMIC_ADD=1
       - MN_IF_NAME=enp1s0f1np1
