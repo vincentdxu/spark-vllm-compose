@@ -35,18 +35,12 @@ services:
       - IPC_LOCK
       - SYS_RESOURCE
     environment:
-      - RAY_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
-      - RAY_OVERRIDE_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
-      - RAY_memory_monitor_refresh_ms=0
-<<<<<<< HEAD
+      # - RAY_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
+      # - RAY_OVERRIDE_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
+      # - RAY_memory_monitor_refresh_ms=0
       # - RAY_num_prestart_python_workers=0
       # - RAY_object_store_memory=8589934592
       # - RAY_object_store_memory=1073741824
-=======
-      - RAY_num_prestart_python_workers=0
-      # - RAY_object_store_memory=8589934592
-      - RAY_object_store_memory=1073741824
->>>>>>> refs/remotes/origin/master
       - VLLM_HOST_IP=${NODE_IP_ADDRESS}
       - VLLM_MARLIN_USE_ATOMIC_ADD=1
       - MN_IF_NAME=enp1s0f1np1
@@ -59,16 +53,27 @@ services:
       - TP_SOCKET_IFNAME=enp1s0f1np1
       - NCCL_IGNORE_CPU_AFFINITY=1
       - CUDA_VISIBLE_DEVIDES=0
-      #- NCCL_DEBUG=INFO
-      # --object-store-memory 8589934592
-      # --num-cpus 2
+      # - NCCL_DEBUG=INFO
     restart: unless-stopped
     command: >
-      ray start --block
-        --disable-usage-stats
-        --num-cpus 4
-        --address=${HEAD_IP_ADDRESS}:6379
-        --node-ip-address ${NODE_IP_ADDRESS}
+      vllm serve cyankiwi/MiniMax-M2.1-AWQ-4bit
+        --served-model-name main
+        --trust-remote-code
+        --port 8000
+        --host 0.0.0.0
+        --gpu-memory-utilization 0.75
+        --max-model-len 128000
+        --tensor-parallel-size 2
+        --pipeline-parallel-size 1
+        --load-format fastsafetensors
+        --enable-auto-tool-choice
+        --tool-call-parser minimax_m2
+        --reasoning-parser minimax_m2
+        --nnodes 2
+        --node-rank 1
+        --master-addr 192.168.0.31
+        --master-port 29500
+        --headless
 
 volumes:
   cache-data:

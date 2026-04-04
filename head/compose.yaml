@@ -28,7 +28,7 @@ services:
       - $HOME/.cache/huggingface:/root/.cache/huggingface
 
       # comment out this line when there is only a single node
-      - ${RAY_SCRIPT_DIR}/ray-start-head.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
+      # - ${RAY_SCRIPT_DIR}/ray-start-head.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
       # persist generated caches, can also use to persist hf downloaded models, add an entry as necessary
       - cache-data:/root/.cache/vllm
       - cache-data:/root/.triton
@@ -37,9 +37,9 @@ services:
       - IPC_LOCK
       - SYS_RESOURCE
     environment:
-      - RAY_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
-      - RAY_OVERRIDE_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
-      - RAY_memory_monitor_refresh_ms=0
+      # - RAY_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
+      #- RAY_OVERRIDE_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
+      # - RAY_memory_monitor_refresh_ms=0
       # - RAY_num_prestart_python_workers=0
       # - RAY_object_store_memory=8589934592
       # - RAY_object_store_memory=1073741824
@@ -55,7 +55,7 @@ services:
       - TP_SOCKET_IFNAME=enp1s0f1np1
       - NCCL_IGNORE_CPU_AFFINITY=1
       - CUDA_VISIBLE_DEVIDES=0
-      #- NCCL_DEBUG=INFO
+      # - NCCL_DEBUG=INFO
     restart: unless-stopped
     # configure your vllm command here
     command: >
@@ -65,14 +65,18 @@ services:
         --port 8000
         --host 0.0.0.0
         --gpu-memory-utilization 0.75
-        -tp 2
-        --distributed-executor-backend ray
         --max-model-len 128000
+        --tensor-parallel-size 2
+        --pipeline-parallel-size 1
         --load-format fastsafetensors
         --enable-auto-tool-choice
         --tool-call-parser minimax_m2
         --reasoning-parser minimax_m2
-        --kv-cache-dtype fp8
+        --nnodes 2
+        --node-rank 0
+        --master-addr 192.168.0.31
+        --master-port 29500
 
 volumes:
   cache-data:
+
