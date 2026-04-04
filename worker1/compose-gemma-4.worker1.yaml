@@ -21,10 +21,8 @@ services:
       # configure, or omit this, per your needs
       # use a directory like this if you have models already downloaded to a specific location
       #- ${MODELS_BASEDIR}:/models
-
       # use this bind mount if you use hf to download and cache models for you
       - $HOME/.cache/huggingface:/root/.cache/huggingface
-
       # unused on workers
       #- ${RAY_SCRIPT_DIR}/ray-start-head.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
       # persist generated caches, can also use to persist hf downloaded models, add an entry as necessary
@@ -59,6 +57,7 @@ services:
       vllm serve google/gemma-4-26B-A4B-it
         --served-model-name main
         --max-model-len 262144
+        --max_num_batched_tokens 8192
         --gpu-memory-utilization 0.40
         --port 8000
         --host 0.0.0.0
@@ -69,9 +68,8 @@ services:
         --reasoning-parser gemma4
         --quantization fp8
         --kv-cache-dtype fp8
-        --max-num-batched-tokens 256
         --tensor-parallel-size 2
-        --pipeline-parallel-size 1        
+        --pipeline-parallel-size 1
         --nnodes 2
         --node-rank 1
         --master-addr 192.168.0.31
