@@ -52,6 +52,7 @@ services:
       - NCCL_IGNORE_CPU_AFFINITY=1
       - CUDA_VISIBLE_DEVIDES=0
       # - NCCL_DEBUG=INFO
+      #  --pipeline-parallel-size 1
     restart: unless-stopped
     command: >
       vllm serve google/gemma-4-26B-A4B-it
@@ -69,7 +70,6 @@ services:
         --quantization fp8
         --kv-cache-dtype fp8
         --tensor-parallel-size 2
-        --pipeline-parallel-size 1
         --nnodes 2
         --node-rank 1
         --master-addr 192.168.0.31
