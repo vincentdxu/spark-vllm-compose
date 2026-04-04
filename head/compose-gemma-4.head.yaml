@@ -62,7 +62,7 @@ services:
       vllm serve google/gemma-4-26B-A4B-it
         --served-model-name main
         --max-model-len 262144
-        --gpu-memory-utilization 0.50
+        --gpu-memory-utilization 0.40
         --port 8000
         --host 0.0.0.0
         --load-format fastsafetensors
@@ -74,7 +74,7 @@ services:
         --kv-cache-dtype fp8
         --max-num-batched-tokens 256
         --tensor-parallel-size 2
-        --pipeline-parallel-size 1        
+        --pipeline-parallel-size 1
         --nnodes 2
         --node-rank 0
         --master-addr 192.168.0.31
