@@ -28,6 +28,7 @@ services:
       # comment out this line when there is only a single node
       # - ${RAY_SCRIPT_DIR}/ray-start-head.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
       # persist generated caches, can also use to persist hf downloaded models, add an entry as necessary
+      - ${HOME}/spark-vllm-docker/mods/fix-gemma4-tool-parser/run.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
       - cache-data:/root/.cache/vllm
       - cache-data:/root/.triton
       - cache-data:/root/.cache/flashinfer
@@ -61,8 +62,8 @@ services:
       vllm serve google/gemma-4-26B-A4B-it
         --served-model-name main
         --max-model-len 262144
-        --max_num_batched_tokens 8192
-        --gpu-memory-utilization 0.40
+        --max_num_batched_tokens 16384
+        --gpu-memory-utilization 0.20
         --port 8000
         --host 0.0.0.0
         --load-format fastsafetensors

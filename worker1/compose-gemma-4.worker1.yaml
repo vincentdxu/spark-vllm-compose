@@ -26,6 +26,7 @@ services:
       # unused on workers
       #- ${RAY_SCRIPT_DIR}/ray-start-head.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
       # persist generated caches, can also use to persist hf downloaded models, add an entry as necessary
+      - ${HOME}/spark-vllm-docker/mods/fix-gemma4-tool-parser/run.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
       - cache-data:/root/.cache/vllm
       - cache-data:/root/.triton
       - cache-data:/root/.cache/flashinfer
