@@ -54,6 +54,8 @@ services:
       - TP_SOCKET_IFNAME=enp1s0f1np1
       - NCCL_IGNORE_CPU_AFFINITY=1
       - CUDA_VISIBLE_DEVIDES=0
+      - HF_HUB_OFFLINE=1
+      - TRANSFORMERS_OFFLINE=1
       # - NCCL_DEBUG=INFO
     restart: unless-stopped
     # configure your vllm command here
