@@ -51,6 +51,8 @@ services:
       - OMPI_MCA_btl_tcp_if_include=enp1s0f1np1
       - TP_SOCKET_IFNAME=enp1s0f1np1
       - NCCL_IGNORE_CPU_AFFINITY=1
+      # 4GB disk cache for compiled CUDA kernels
+      - CUDA_CACHE_MAXSIZE=4294967296
       - CUDA_VISIBLE_DEVIDES=0
       - HF_HUB_OFFLINE=1
       - TRANSFORMERS_OFFLINE=1
@@ -62,7 +64,7 @@ services:
         --served-model-name main
         --max-model-len 262144
         --max_num_batched_tokens 8192
-        --gpu-memory-utilization 0.30
+        --gpu-memory-utilization 0.20
         --port 8000
         --host 0.0.0.0
         --load-format fastsafetensors
