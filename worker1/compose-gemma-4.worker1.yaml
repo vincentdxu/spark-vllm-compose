@@ -62,7 +62,7 @@ services:
         --served-model-name main
         --max-model-len 262144
         --max_num_batched_tokens 8192
-        --gpu-memory-utilization 0.40
+        --gpu-memory-utilization 0.30
         --port 8000
         --host 0.0.0.0
         --load-format fastsafetensors
