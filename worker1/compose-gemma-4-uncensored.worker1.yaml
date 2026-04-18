@@ -85,10 +85,10 @@ services:
           --enable-auto-tool-choice \
           --tool-call-parser gemma4 \
           --tensor-parallel-size 2 \
-          --nnodes 2
-          --node-rank 1
-          --master-addr 192.168.0.31
-          --master-port 29500
+          --nnodes 2 \
+          --node-rank 1 \
+          --master-addr 192.168.0.31 \
+          --master-port 29500 \
           --headless
 
 volumes:
