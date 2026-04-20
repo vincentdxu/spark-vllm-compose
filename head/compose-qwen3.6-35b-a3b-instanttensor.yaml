@@ -69,11 +69,17 @@ services:
         --trust-remote-code
         --tool-call-parser qwen3_coder
         --reasoning-parser qwen3
-        --default-chat-template-kwargs '{"preserve_thinking": false}'
         --kv-cache-dtype fp8
-        --load-format fastsafetensors
+        --load-format instanttensor
         --attention-backend flashinfer
         --enable-prefix-caching
+        --override-generation-config '{"temperature": 1.0, "top_p": 0.95, "top_k": 20, "presence_penalty": 1.5, "repetition_penalty": 1.0}'
+        --default-chat-template-kwargs '{"preserve_thinking": true}'
+        --speculative-config '{"method":"mtp","num_speculative_tokens":3}'
+        --max-num-seqs 8
+        --stream-interval 5
+        --max_cudagraph_capture_size 10
+        --mamba_ssm_cache_dtype float16
         --tensor-parallel-size 2
         --nnodes 2
         --node-rank 0
