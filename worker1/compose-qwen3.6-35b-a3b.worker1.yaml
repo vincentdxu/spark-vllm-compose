@@ -68,7 +68,8 @@ services:
         --generation-config auto
         --trust-remote-code
         --tool-call-parser qwen3_coder
-        --default-chat-template-kwargs '{{"preserve_thinking": false}}'
+        --reasoning-parser qwen3
+        --default-chat-template-kwargs '{"preserve_thinking": false}'
         --kv-cache-dtype fp8
         --load-format fastsafetensors
         --attention-backend flashinfer
