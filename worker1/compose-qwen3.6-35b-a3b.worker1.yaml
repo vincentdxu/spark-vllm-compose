@@ -1,8 +1,8 @@
 services:
   # RDMA requires root, cannot specify a user
   vllm:
-    image: vllm-node
-    container_name: vllm-node
+    image: vllm-node-tf5
+    container_name: vllm-node-tf5
     deploy:
       resources:
         reservations:
