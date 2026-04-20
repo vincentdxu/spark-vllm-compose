@@ -1,0 +1,90 @@
+services:
+  # RDMA requires root, cannot specify a user
+  vllm:
+    image: vllm-node
+    container_name: vllm-node
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    mem_limit: 110g
+    memswap_limit: 120g
+    pids_limit: 4096
+    network_mode: host
+    env_file:
+      - .env
+    shm_size: 64g
+    devices:
+      - /dev/infiniband:/dev/infiniband
+    volumes:
+      - $HOME/.cache/huggingface:/root/.cache/huggingface
+        # - ${HOME}/spark-vllm-docker/mods/fix-gemma4-tool-parser/run.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
+      # - cache-data:/root/.cache/vllm
+      # - cache-data:/root/.triton
+      # - cache-data:/root/.cache/flashinfer
+    cap_add:
+      - IPC_LOCK
+      - SYS_RESOURCE
+    environment:
+      # - RAY_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
+      # - RAY_OVERRIDE_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
+      # - RAY_memory_monitor_refresh_ms=0
+      # - RAY_num_prestart_python_workers=0
+      # - RAY_object_store_memory=8589934592
+      # - RAY_object_store_memory=1073741824
+      # - VLLM_ALLOW_LONG_MAX_MODEL_LEN=1
+      # - TORCH_MATMUL_PRECISION=high
+      # - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+      - VLLM_HOST_IP=${NODE_IP_ADDRESS}
+      - VLLM_MARLIN_USE_ATOMIC_ADD=1
+      - MN_IF_NAME=enp1s0f1np1
+      - UCX_NET_DEVICES=enp1s0f1np1
+      - NCCL_IB_DISABLE=0
+      - NCCL_SOCKET_IFNAME=enp1s0f1np1
+      - NCCL_IB_HCA=rocep1s0f1,roceP2p1s0f1
+      - GLOO_SOCKET_IFNAME=enp1s0f1np1
+      - OMPI_MCA_btl_tcp_if_include=enp1s0f1np1
+      - TP_SOCKET_IFNAME=enp1s0f1np1
+      - NCCL_IGNORE_CPU_AFFINITY=1
+      # 4GB disk cache for compiled CUDA kernels
+      - CUDA_CACHE_MAXSIZE=4294967296
+      - CUDA_VISIBLE_DEVIDES=0
+      - HF_HUB_OFFLINE=1
+      - TRANSFORMERS_OFFLINE=1
+      # - NCCL_DEBUG=INFO
+    restart: unless-stopped
+    command: >
+      vllm serve Qwen/Qwen3.6-35B-A3B-FP8
+        --served-model-name main
+        --host 0.0.0.0
+        --port 8000
+        --max-model-len 262144
+        --max-num-batched-tokens 32768
+        --gpu-memory-utilization 0.40
+        --enable-auto-tool-choice
+        --generation-config auto
+        --trust-remote-code
+        --tool-call-parser qwen3_coder
+        --kv-cache-dtype fp8
+        --load-format instanttensor
+        --attention-backend flashinfer
+        --enable-prefix-caching
+        --override-generation-config '{"temperature": 1.0, "top_p": 0.95, "top_k": 20, "presence_penalty": 1.5, "repetition_penalty": 1.0}'
+        --default-chat-template-kwargs '{"preserve_thinking": true}'
+        --speculative-config '{"method":"mtp","num_speculative_tokens":3}'
+        --max-num-seqs 8
+        --stream-interval 5
+        --max_cudagraph_capture_size 10
+        --mamba_ssm_cache_dtype float16
+        --tensor-parallel-size 2
+        --nnodes 2
+        --node-rank 1
+        --master-addr 192.168.0.31
+        --master-port 29500
+        --headless
+
+volumes:
+  cache-data:
