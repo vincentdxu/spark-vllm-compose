@@ -1,8 +1,8 @@
 services:
   # RDMA requires root, cannot specify a user
   vllm:
-    image: vllm-node-tf5
-    container_name: vllm-node-tf5
+    image: vllm-node
+    container_name: spark-vllm-docker
     deploy:
       resources:
         reservations:
@@ -14,17 +14,23 @@ services:
     memswap_limit: 120g
     pids_limit: 4096
     network_mode: host
-    env_file:
-      - .env
     shm_size: 64g
     devices:
       - /dev/infiniband:/dev/infiniband
     volumes:
+      # configure, or omit this, per your needs
+      # use a directory like this if you have models already downloaded to a specific location
+      #- ${MODELS_BASEDIR}:/models
+
+      # use this bind mount if you use hf to download and cache models for you
       - $HOME/.cache/huggingface:/root/.cache/huggingface
-        # - ${HOME}/spark-vllm-docker/mods/fix-gemma4-tool-parser/run.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
-      # - cache-data:/root/.cache/vllm
-      # - cache-data:/root/.triton
-      # - cache-data:/root/.cache/flashinfer
+
+      # unused on workers
+      #- ${RAY_SCRIPT_DIR}/ray-start-head.sh:/opt/nvidia/entrypoint.d/99-ray-start-head.sh
+      # persist generated caches, can also use to persist hf downloaded models, add an entry as necessary
+      - cache-data:/root/.cache/vllm
+      - cache-data:/root/.triton
+      - cache-data:/root/.cache/flashinfer
     cap_add:
       - IPC_LOCK
       - SYS_RESOURCE
@@ -35,9 +41,6 @@ services:
       # - RAY_num_prestart_python_workers=0
       # - RAY_object_store_memory=8589934592
       # - RAY_object_store_memory=1073741824
-      # - VLLM_ALLOW_LONG_MAX_MODEL_LEN=1
-      # - TORCH_MATMUL_PRECISION=high
-      # - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
       - VLLM_HOST_IP=${NODE_IP_ADDRESS}
       - VLLM_MARLIN_USE_ATOMIC_ADD=1
       - MN_IF_NAME=enp1s0f1np1
@@ -49,35 +52,28 @@ services:
       - OMPI_MCA_btl_tcp_if_include=enp1s0f1np1
       - TP_SOCKET_IFNAME=enp1s0f1np1
       - NCCL_IGNORE_CPU_AFFINITY=1
-      # 4GB disk cache for compiled CUDA kernels
-      - CUDA_CACHE_MAXSIZE=4294967296
       - CUDA_VISIBLE_DEVIDES=0
-      - HF_HUB_OFFLINE=1
-      - TRANSFORMERS_OFFLINE=1
       # - NCCL_DEBUG=INFO
     restart: unless-stopped
     command: >
-      vllm serve Qwen/Qwen3.6-35B-A3B-FP8
+      vllm serve cyankiwi/MiniMax-M2.1-AWQ-4bit
         --served-model-name main
-        --host 0.0.0.0
-        --port 8000
-        --max-model-len 262144
-        --max-num-batched-tokens 32768
-        --gpu-memory-utilization 0.40
-        --enable-auto-tool-choice
-        --generation-config auto
         --trust-remote-code
-        --tool-call-parser qwen3_coder
-        --reasoning-parser qwen3
-        --kv-cache-dtype fp8
-        --load-format fastsafetensors
-        --attention-backend flashinfer
-        --enable-prefix-caching
+        --port 8000
+        --host 0.0.0.0
+        --gpu-memory-utilization 0.75
+        --max-model-len 131072
         --tensor-parallel-size 2
+        --pipeline-parallel-size 1
+        --load-format fastsafetensors
+        --enable-auto-tool-choice
+        --tool-call-parser minimax_m2
+        --reasoning-parser minimax_m2
         --nnodes 2
-        --node-rank 0
+        --node-rank 1
         --master-addr 192.168.0.31
         --master-port 29500
+        --headless
 
 volumes:
   cache-data:
